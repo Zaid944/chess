@@ -1,0 +1,8 @@
+{
+    "root": [
+        "./src/game.ts",
+        "./src/gamemanager.ts",
+        "./src/index.ts"
+    ],
+    "version": "5.9.3"
+}

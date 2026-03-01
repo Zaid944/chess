@@ -1,24 +1,24 @@
 import WebSocket from "ws";
 import { Chess } from "chess.js";
-import { Player } from "@chess/types"
+import { Player } from "@chess/types";
 
 export class Game {
     player1: Player;
     player2: Player;
-    gameId: String;
-    chessBoard: Chess
+    gameId: string;
+    chessBoard: Chess;
 
     constructor() {
         this.player1 = {
             socket: null,
-            color: "w"
+            color: "w",
         };
         this.player2 = {
             socket: null,
-            color: "b"
+            color: "b",
         };
         this.gameId = crypto.randomUUID();
-        this.chessBoard = new Chess()
+        this.chessBoard = new Chess();
     }
 
     addPlayer(player: WebSocket) {
@@ -39,8 +39,8 @@ export class Game {
 
     sendEvents(player: Player) {
         // no socket connection
-        if(!player.socket) {
-            return
+        if (!player.socket) {
+            return;
         }
 
         // check if both players joined
@@ -56,35 +56,38 @@ export class Game {
 
     addListeners(player: Player) {
         // no socket connection
-        if(!player.socket) {
-            return
+        if (!player.socket) {
+            return;
         }
 
-        this.sendEvents(player)
+        this.sendEvents(player);
 
         // add listeners
         player.socket.on("message", (payload) => {
-            if(!player.socket) {
-                return
+            if (!player.socket) {
+                return;
             }
 
-            player.socket.send(`ok here is your move, ${payload}`)
-            if(player == this.player1 && this.player2.socket) {
-                this.player2.socket.send(`player1 played move, ${payload}`)
-            } else if (player.socket == this.player2.socket && this.player1.socket) {
-                this.player1.socket.send(`player2 played move, ${payload}`)
+            player.socket.send(`ok here is your move, ${payload}`);
+            if (player == this.player1 && this.player2.socket) {
+                this.player2.socket.send(`player1 played move, ${payload}`);
+            } else if (
+                player.socket == this.player2.socket &&
+                this.player1.socket
+            ) {
+                this.player1.socket.send(`player2 played move, ${payload}`);
             }
         });
 
         player.socket.on("close", () => {
             if (player == this.player1 && this.player2.socket) {
                 this.player2.socket.send("Opponent left the game");
-                this.resetPlayer1()
-                this.sendEvents(this.player2)
+                this.resetPlayer1();
+                this.sendEvents(this.player2);
             } else if (player == this.player2 && this.player1.socket) {
                 this.player1.socket.send("Opponent left the game");
-                this.resetPlayer2()
-                this.sendEvents(this.player1)
+                this.resetPlayer2();
+                this.sendEvents(this.player1);
             }
         });
     }
@@ -92,14 +95,14 @@ export class Game {
     resetPlayer1() {
         this.player1 = {
             color: "w",
-            socket: null
-        }
+            socket: null,
+        };
     }
 
     resetPlayer2() {
         this.player1 = {
             color: "b",
-            socket: null
-        }
+            socket: null,
+        };
     }
 }
